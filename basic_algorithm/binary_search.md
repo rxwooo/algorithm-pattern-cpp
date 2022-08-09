@@ -19,33 +19,32 @@
 
 > 给定一个  n  个元素有序的（升序）整型数组  nums 和一个目标值  target  ，写一个函数搜索  nums  中的 target，如果目标值存在返回下标，否则返回 -1。
 
-```go
+```c++
 // 二分搜索最常用模板
-func search(nums []int, target int) int {
-    // 1、初始化start、end
-    start := 0
-    end := len(nums) - 1
-    // 2、处理for循环
-    for start+1 < end {
-        mid := start + (end-start)/2
-        // 3、比较a[mid]和target值
-        if nums[mid] == target {
-            end = mid
-        } else if nums[mid] < target {
-            start = mid
-        } else if nums[mid] > target {
-            end = mid
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        int end = nums.size() - 1;
+        int start = 0;
+
+        while(start + 1 < end)
+        {
+            int mid = start + (end - start) / 2;
+            if(nums[mid] == target)
+                end = mid;
+            else if(nums[mid] < target)
+                start = mid;
+            else 
+                end = mid;
         }
+        
+        if(nums[start] == target)
+            return start;
+        if(nums[end] == target)
+            return end;
+        return -1;
     }
-    // 4、最后剩下两个元素，手动判断
-    if nums[start] == target {
-        return start
-    }
-    if nums[end] == target {
-        return end
-    }
-    return -1
-}
+};
 ```
 
 大部分二分查找类的题目都可以用这个模板，然后做一点特殊逻辑即可
@@ -58,7 +57,7 @@ func search(nums []int, target int) int {
 
 如果是最简单的二分搜索，不需要找第一个、最后一个位置、或者是没有重复元素，可以使用模板#1，代码更简洁
 
-```go
+```c++
 // 无重复元素搜索时，更方便
 func search(nums []int, target int) int {
     start := 0
@@ -89,7 +88,7 @@ func search(nums []int, target int) int {
 
 思路：核心点就是找第一个 target 的索引，和最后一个 target 的索引，所以用两次二分搜索分别找第一次和最后一次的位置
 
-```go
+```c++
 func searchRange (A []int, target int) []int {
     if len(A) == 0 {
         return []int{-1, -1}
@@ -149,7 +148,7 @@ func searchRange (A []int, target int) []int {
 
 > 给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置。
 
-```go
+```c++
 func searchInsert(nums []int, target int) int {
     // 思路：找到第一个 >= target 的元素位置
     start := 0
@@ -183,7 +182,7 @@ func searchInsert(nums []int, target int) int {
 > - 每行中的整数从左到右按升序排列。
 > - 每行的第一个整数大于前一行的最后一个整数。
 
-```go
+```c++
 func searchMatrix(matrix [][]int, target int) bool {
     // 思路：将2纬数组转为1维数组 进行二分搜索
     if len(matrix) == 0 || len(matrix[0]) == 0 {
@@ -217,7 +216,7 @@ func searchMatrix(matrix [][]int, target int) bool {
 > 假设你有 n 个版本 [1, 2, ..., n]，你想找出导致之后所有版本出错的第一个错误的版本。
 > 你可以通过调用  bool isBadVersion(version)  接口来判断版本号 version 是否在单元测试中出错。实现一个函数来查找第一个错误的版本。你应该尽量减少对调用 API 的次数。
 
-```go
+```c++
 func firstBadVersion(n int) int {
     // 思路：二分搜索
     start := 0
@@ -242,7 +241,7 @@ func firstBadVersion(n int) int {
 > 假设按照升序排序的数组在预先未知的某个点上进行了旋转( 例如，数组  [0,1,2,4,5,6,7] 可能变为  [4,5,6,7,0,1,2] )。
 > 请找出其中最小的元素。
 
-```go
+```c++
 func findMin(nums []int) int {
     // 思路：/ / 最后一个值作为target，然后往左移动，最后比较start、end的值
     if len(nums) == 0 {
@@ -273,7 +272,7 @@ func findMin(nums []int) int {
 > ( 例如，数组  [0,1,2,4,5,6,7] 可能变为  [4,5,6,7,0,1,2] )。
 > 请找出其中最小的元素。(包含重复元素)
 
-```go
+```c++
 func findMin(nums []int) int {
     // 思路：跳过重复元素，mid值和end值比较，分为两种情况进行处理
     if len(nums) == 0 {
@@ -311,7 +310,7 @@ func findMin(nums []int) int {
 > 搜索一个给定的目标值，如果数组中存在这个目标值，则返回它的索引，否则返回  -1 。
 > 你可以假设数组中不存在重复的元素。
 
-```go
+```c++
 func search(nums []int, target int) int {
     // 思路：/ / 两条上升直线，四种情况判断
     if len(nums) == 0 {
@@ -359,7 +358,7 @@ func search(nums []int, target int) int {
 > ( 例如，数组  [0,0,1,2,2,5,6]  可能变为  [2,5,6,0,0,1,2] )。
 > 编写一个函数来判断给定的目标值是否存在于数组中。若存在返回  true，否则返回  false。(包含重复元素)
 
-```go
+```c++
 func search(nums []int, target int) bool {
     // 思路：/ / 两条上升直线，四种情况判断，并且处理重复数字
     if len(nums) == 0 {
