@@ -59,24 +59,28 @@ public:
 
 ```c++
 // 无重复元素搜索时，更方便
-func search(nums []int, target int) int {
-    start := 0
-    end := len(nums) - 1
-    for start <= end {
-        mid := start + (end-start)/2
-        if nums[mid] == target {
-            return mid
-        } else if nums[mid] < target {
-            start = mid+1
-        } else if nums[mid] > target {
-            end = mid-1
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        int end = nums.size() - 1;
+        int start = 0;
+
+        while(start + 1 < end)
+        {
+            int mid = start + (end - start) / 2;
+            if(nums[mid] == target)
+                return mid;
+            else if(nums[mid] < target)
+                start = mid;
+            else 
+                end = mid;
         }
+        // 如果找不到，start 是第一个大于target的索引
+        // 如果在B+树结构里面二分搜索，可以return start
+        // 这样可以继续向子节点搜索，如：node=node.Children[start]
+        return -1;
     }
-    // 如果找不到，start 是第一个大于target的索引
-    // 如果在B+树结构里面二分搜索，可以return start
-    // 这样可以继续向子节点搜索，如：node:=node.Children[start]
-    return -1
-}
+};
 ```
 
 ## 常见题目
@@ -89,58 +93,56 @@ func search(nums []int, target int) int {
 思路：核心点就是找第一个 target 的索引，和最后一个 target 的索引，所以用两次二分搜索分别找第一次和最后一次的位置
 
 ```c++
-func searchRange (A []int, target int) []int {
-    if len(A) == 0 {
-        return []int{-1, -1}
-    }
-    result := make([]int, 2)
-    start := 0
-    end := len(A) - 1
-    for start+1 < end {
-        mid := start + (end-start)/2
-        if A[mid] > target {
-            end = mid
-        } else if A[mid] < target {
-            start = mid
-        } else {
+vector<int> searchRange(vector<int>& nums, int target) {
+     vector<int> res{-1, -1};
+     if(nums.empty()) return res;
+
+     int begin = 0, end = nums.size() - 1;
+     while(begin + 1 < end){
+         int mid = begin + (end - begin) / 2;
+         if(nums[mid] < target){
+             begin = mid;
+         }else if(nums[mid] > target){
+             end = mid;
+         }else{
             // 如果相等，应该继续向左找，就能找到第一个目标值的位置
-            end = mid
-        }
-    }
-    // 搜索左边的索引
-    if A[start] == target {
-        result[0] = start
-    } else if A[end] == target {
-        result[0] = end
-    } else {
-        result[0] = -1
-        result[1] = -1
-        return result
-    }
-    start = 0
-    end = len(A) - 1
-    for start+1 < end {
-        mid := start + (end-start)/2
-        if A[mid] > target {
-            end = mid
-        } else if A[mid] < target {
-            start = mid
-        } else {
-            // 如果相等，应该继续向右找，就能找到最后一个目标值的位置
-            start = mid
-        }
-    }
-    // 搜索右边的索引
-    if A[end] == target {
-        result[1] = end
-    } else if A[start] == target {
-        result[1] = start
-    } else {
-        result[0] = -1
-        result[1] = -1
-        return result
-    }
-    return result
+             end = mid;
+         }
+     }
+
+     // 搜索左边的索引
+     if(nums[begin] == target){
+         res[0] = begin;
+     }else if(nums[end] == target){
+         res[0] = end;
+     }else{
+         return res;
+     }
+
+     begin = 0;
+     end = nums.size() - 1;
+     while(begin + 1 < end){
+         int mid = begin + (end - begin) / 2;
+         if(nums[mid] < target){
+             begin = mid;
+         }else if(nums[mid] > target){
+             end = mid;
+         }else{
+             // 如果相等，应该继续向右找，就能找到最后一个目标值的位置
+             begin = mid;
+         }
+     }
+
+     // 搜索右边的索引
+     if(nums[end] == target){
+         res[1] = end;
+     }else if(nums[begin] == target){
+         res[1] = begin;
+     }else{
+         return res;
+     }
+
+     return res;
 }
 ```
 
@@ -149,30 +151,30 @@ func searchRange (A []int, target int) []int {
 > 给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置。
 
 ```c++
-func searchInsert(nums []int, target int) int {
-    // 思路：找到第一个 >= target 的元素位置
-    start := 0
-    end := len(nums) - 1
-    for start+1 < end {
-        mid := start + (end-start)/2
-        if nums[mid] == target {
-            // 标记开始位置
-            start = mid
-        } else if nums[mid] > target {
-            end = mid
-        } else {
-            start = mid
+class Solution {
+public:
+    int searchInsert(vector<int>& nums, int target) {
+        int start = 0;
+        int end = nums.size() - 1;
+
+        while(start + 1 < end)
+        {
+            int mid = start + (end - start) / 2;
+            if(nums[mid] == target)
+                end = mid;
+            else if(nums[mid] < target)
+                start = mid;
+            else
+                end = mid;
         }
+
+        if(nums[start] >= target)
+            return start;
+        if(nums[end] < target)
+            return end + 1;
+        return end;
     }
-    if nums[start] >= target {
-        return start
-    } else if nums[end] >= target {
-        return end
-    } else if nums[end] < target { // 目标值比所有值都大
-        return end + 1
-    }
-    return 0
-}
+};
 ```
 
 ### [search-a-2d-matrix](https://leetcode-cn.com/problems/search-a-2d-matrix/)
@@ -183,32 +185,35 @@ func searchInsert(nums []int, target int) int {
 > - 每行的第一个整数大于前一行的最后一个整数。
 
 ```c++
-func searchMatrix(matrix [][]int, target int) bool {
-    // 思路：将2纬数组转为1维数组 进行二分搜索
-    if len(matrix) == 0 || len(matrix[0]) == 0 {
-        return false
-    }
-    row := len(matrix)
-    col := len(matrix[0])
-    start := 0
-    end := row*col - 1
-    for start+1 < end {
-        mid := start + (end-start)/2
-        // 获取2纬数组对应值
-        val := matrix[mid/col][mid%col]
-        if val > target {
-            end = mid
-        } else if val < target {
-            start = mid
-        } else {
-            return true
+class Solution {
+public:
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+        int row = matrix.size();
+        int col = matrix[0].size();
+
+        int start = 0;
+        int end = row * col - 1;
+
+        while(start + 1 < end)
+        {
+            int mid = start + (end - start) / 2;
+            int r = mid / col;
+            int c = mid % col;
+            if(matrix[r][c] == target)
+                end = mid;
+            else if(matrix[r][c] < target)
+                start = mid;
+            else
+                end = mid;
         }
+
+        if(matrix[start/col][start%col] == target)
+            return 1;
+        if(matrix[end / col][end % col] == target)
+            return 1;
+        return 0;
     }
-    if matrix[start/col][start%col] == target || matrix[end/col][end%col] == target{
-        return true
-    }
-    return false
-}
+};
 ```
 
 ### [first-bad-version](https://leetcode-cn.com/problems/first-bad-version/)
@@ -217,23 +222,24 @@ func searchMatrix(matrix [][]int, target int) bool {
 > 你可以通过调用  bool isBadVersion(version)  接口来判断版本号 version 是否在单元测试中出错。实现一个函数来查找第一个错误的版本。你应该尽量减少对调用 API 的次数。
 
 ```c++
-func firstBadVersion(n int) int {
-    // 思路：二分搜索
-    start := 0
-    end := n
-    for start+1 < end {
-        mid := start + (end - start)/2
-        if isBadVersion(mid) {
-            end = mid
-        } else if isBadVersion(mid) == false {
-            start = mid
+class Solution {
+public:
+    int firstBadVersion(int n) {
+        int start = 1;
+        int end = n;
+        while(start + 1 < end)
+        {
+            int mid = start + (end - start) / 2;
+            if(isBadVersion(mid))
+                end = mid;
+            else 
+                start = mid; 
         }
+        if(isBadVersion(start))
+            return start;
+        return end;
     }
-    if isBadVersion(start) {
-        return start
-    }
-    return end
-}
+};
 ```
 
 ### [find-minimum-in-rotated-sorted-array](https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array/)
@@ -242,28 +248,24 @@ func firstBadVersion(n int) int {
 > 请找出其中最小的元素。
 
 ```c++
-func findMin(nums []int) int {
-    // 思路：/ / 最后一个值作为target，然后往左移动，最后比较start、end的值
-    if len(nums) == 0 {
-        return -1
-    }
-    start := 0
-    end := len(nums) - 1
-
-    for start+1 < end {
-        mid := start + (end-start)/2
-        // 最后一个元素值为target
-        if nums[mid] <= nums[end] {
-            end = mid
-        } else {
-            start = mid
+class Solution {
+public:
+    int findMin(vector<int>& nums) {
+        int start = 0;
+        int end = nums.size() - 1;
+        while(start + 1 < end)
+        {
+            int mid = start + (end - start) / 2;
+            if(nums[end] > nums[mid])
+                end = mid;
+            else
+                start = mid;
         }
+        if(nums[start] > nums[end])
+            return nums[end];
+        return nums[start];
     }
-    if nums[start] > nums[end] {
-        return nums[end]
-    }
-    return nums[start]
-}
+};
 ```
 
 ### [find-minimum-in-rotated-sorted-array-ii](https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array-ii/)
@@ -273,34 +275,24 @@ func findMin(nums []int) int {
 > 请找出其中最小的元素。(包含重复元素)
 
 ```c++
-func findMin(nums []int) int {
-    // 思路：跳过重复元素，mid值和end值比较，分为两种情况进行处理
-    if len(nums) == 0 {
-        return -1
-    }
-    start := 0
-    end := len(nums) - 1
-    for start+1 < end {
-        // 去除重复元素
-        for start < end && nums[end] == nums[end-1] {
-            end--
+class Solution {
+public:
+    int findMin(vector<int>& nums) {
+        int start = 0;
+        int end = nums.size() - 1;
+        while(start + 1 < end)
+        {
+            int mid = start + (end - start) / 2;
+            if(nums[end] > nums[mid])
+                end = mid;
+            else
+                start = mid;
         }
-        for start < end && nums[start] == nums[start+1] {
-            start++
-        }
-        mid := start + (end-start)/2
-        // 中间元素和最后一个元素比较（判断中间点落在左边上升区，还是右边上升区）
-        if nums[mid] <= nums[end] {
-            end = mid
-        } else {
-            start = mid
-        }
+        if(nums[start] > nums[end])
+            return nums[end];
+        return nums[start];
     }
-    if nums[start] > nums[end] {
-        return nums[end]
-    }
-    return nums[start]
-}
+};
 ```
 
 ### [search-in-rotated-sorted-array](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/)
@@ -311,41 +303,34 @@ func findMin(nums []int) int {
 > 你可以假设数组中不存在重复的元素。
 
 ```c++
-func search(nums []int, target int) int {
-    // 思路：/ / 两条上升直线，四种情况判断
-    if len(nums) == 0 {
-        return -1
-    }
-    start := 0
-    end := len(nums) - 1
-    for start+1 < end {
-        mid := start + (end-start)/2
-        // 相等直接返回
-        if nums[mid] == target {
-            return mid
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        int start = 0;
+        int end = nums.size() - 1;
+        while(start + 1 < end)
+        {
+            int mid = start + (end - start) / 2;
+            if(nums[mid] == target)
+                return mid;
+            if(nums[end] > nums[mid])
+                if(target <= nums[end] && target >= nums[mid])
+                    start = mid;
+                else
+                    end = mid;
+            else if(nums[start] < nums[mid])
+                if(target <= nums[mid] && target >= nums[start])
+                    end = mid;
+                else
+                    start = mid;
         }
-        // 判断在那个区间，可能分为四种情况
-        if nums[start] < nums[mid] {
-            if nums[start] <= target && target <= nums[mid] {
-                end = mid
-            } else {
-                start = mid
-            }
-        } else if nums[end] > nums[mid] {
-            if nums[end] >= target && nums[mid] <= target {
-                start = mid
-            } else {
-                end = mid
-            }
-        }
+        if(nums[start] == target)
+            return start;
+        if(nums[end] == target)
+            return end;
+        return -1;
     }
-    if nums[start] == target {
-        return start
-    } else if nums[end] == target {
-        return end
-    }
-    return -1
-}
+};
 ```
 
 注意点
@@ -359,46 +344,37 @@ func search(nums []int, target int) int {
 > 编写一个函数来判断给定的目标值是否存在于数组中。若存在返回  true，否则返回  false。(包含重复元素)
 
 ```c++
-func search(nums []int, target int) bool {
-    // 思路：/ / 两条上升直线，四种情况判断，并且处理重复数字
-    if len(nums) == 0 {
-        return false
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        int start = 0;
+        int end = nums.size() - 1;
+        while(start + 1 < end)
+        {
+            while(start < end && nums[start] == nums[start + 1]) start++;
+            while(start < end && nums[end] == nums[end - 1]) end--;
+
+            int mid = start + (end - start) / 2;
+            if(nums[mid] == target)
+                return 1;
+            if(nums[end] > nums[mid])
+                if(target <= nums[end] && target >= nums[mid])
+                    start = mid;
+                else
+                    end = mid;
+            else if(nums[start] < nums[mid])
+                if(target <= nums[mid] && target >= nums[start])
+                    end = mid;
+                else
+                    start = mid;
+        }
+        if(nums[start] == target)
+            return 1;
+        if(nums[end] == target)
+            return 1;
+        return 0;
     }
-    start := 0
-    end := len(nums) - 1
-    for start+1 < end {
-        // 处理重复数字
-        for start < end && nums[start] == nums[start+1] {
-            start++
-        }
-        for start < end && nums[end] == nums[end-1] {
-            end--
-        }
-        mid := start + (end-start)/2
-        // 相等直接返回
-        if nums[mid] == target {
-            return true
-        }
-        // 判断在那个区间，可能分为四种情况
-        if nums[start] < nums[mid] {
-            if nums[start] <= target && target <= nums[mid] {
-                end = mid
-            } else {
-                start = mid
-            }
-        } else if nums[end] > nums[mid] {
-            if nums[end] >= target && nums[mid] <= target {
-                start = mid
-            } else {
-                end = mid
-            }
-        }
-    }
-    if nums[start] == target || nums[end] == target {
-        return true
-    }
-    return false
-}
+};
 ```
 
 ## 总结
@@ -412,11 +388,11 @@ func search(nums []int, target int) bool {
 
 ## 练习题
 
-- [ ] [search-for-range](https://www.lintcode.com/problem/search-for-a-range/description)
-- [ ] [search-insert-position](https://leetcode-cn.com/problems/search-insert-position/)
-- [ ] [search-a-2d-matrix](https://leetcode-cn.com/problems/search-a-2d-matrix/)
-- [ ] [first-bad-version](https://leetcode-cn.com/problems/first-bad-version/)
-- [ ] [find-minimum-in-rotated-sorted-array](https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array/)
-- [ ] [find-minimum-in-rotated-sorted-array-ii](https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array-ii/)
-- [ ] [search-in-rotated-sorted-array](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/)
-- [ ] [search-in-rotated-sorted-array-ii](https://leetcode-cn.com/problems/search-in-rotated-sorted-array-ii/)
+- [x] [search-for-range](https://www.lintcode.com/problem/search-for-a-range/description)
+- [x] [search-insert-position](https://leetcode-cn.com/problems/search-insert-position/)
+- [x] [search-a-2d-matrix](https://leetcode-cn.com/problems/search-a-2d-matrix/)
+- [x] [first-bad-version](https://leetcode-cn.com/problems/first-bad-version/)
+- [x] [find-minimum-in-rotated-sorted-array](https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array/)
+- [x] [find-minimum-in-rotated-sorted-array-ii](https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array-ii/)
+- [x] [search-in-rotated-sorted-array](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/)
+- [x] [search-in-rotated-sorted-array-ii](https://leetcode-cn.com/problems/search-in-rotated-sorted-array-ii/)
